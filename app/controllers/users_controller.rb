@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
-  before_action :logged_in_user, only: [:index,:edit, :update,:destroy] #ログインしてない人を入れたくないページ
+  before_action :logged_in_user, only: [:index, :edit, :update, :destroy,
+                                        :following, :followers] #ログインしてない人を入れたくないページ
   before_action :correct_user, only: [:edit, :update] #ログインしていても特定の個人しか入れたくないページ
   before_action :admin_user,     only: :destroy #ログインしていても特定の個人しか入れたくない＆外にも見せたくない
 
@@ -46,7 +47,19 @@ class UsersController < ApplicationController
     redirect_to users_url, status: :see_other
   end
 
+  def following
+    @title = "Following"
+    @user  = User.find(params[:id])
+    @users = @user.following.paginate(page: params[:page])
+    render 'show_follow'
+  end
 
+  def followers
+    @title = "Followers"
+    @user  = User.find(params[:id])
+    @users = @user.followers.paginate(page: params[:page])
+    render 'show_follow'
+  end
 
   private
 
