@@ -108,9 +108,18 @@ GEM
       reline (>= 0.3.1)
     diff-lcs (1.6.1)
     erubi (1.13.1)
+    event_stream_parser (1.0.0)
     execjs (2.10.0)
     faker (2.21.0)
       i18n (>= 1.8.11, < 2)
+    faraday (2.13.1)
+      faraday-net_http (>= 2.0, < 3.5)
+      json
+      logger
+    faraday-multipart (1.1.0)
+      multipart-post (~> 2.0)
+    faraday-net_http (3.4.0)
+      net-http (>= 0.5.0)
     ffi (1.17.1-aarch64-linux-gnu)
     ffi (1.17.1-arm64-darwin)
     ffi (1.17.1-x86_64-darwin)
@@ -179,7 +188,10 @@ GEM
       minitest (>= 5.0)
       ruby-progressbar
     msgpack (1.8.0)
+    multipart-post (2.4.1)
     nenv (0.3.0)
+    net-http (0.6.0)
+      uri
     net-imap (0.5.6)
       date
       net-protocol
@@ -285,6 +297,10 @@ GEM
       unicode-display_width (>= 2.4.0, < 4.0)
     rubocop-ast (1.42.0)
       parser (>= 3.3.7.2)
+    ruby-openai (8.1.0)
+      event_stream_parser (>= 0.3.0, < 2.0.0)
+      faraday (>= 1)
+      faraday-multipart (>= 1)
     ruby-progressbar (1.13.0)
     ruby-vips (2.2.3)
       ffi (~> 1.12)
@@ -348,6 +364,7 @@ GEM
     unicode-display_width (3.1.4)
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
+    uri (1.0.3)
     web-console (4.2.0)
       actionview (>= 6.0.0)
       activemodel (>= 6.0.0)
@@ -400,6 +417,7 @@ DEPENDENCIES
   rails-controller-testing (= 1.0.5)
   reline (= 0.5.10)
   repl_type_completor (= 0.1.2)
+  ruby-openai
   sassc-rails (= 2.1.2)
   selenium-webdriver (= 4.8.3)
   solargraph (= 0.53.4)
