@@ -1,23 +1,29 @@
 # メインのサンプルユーザーを1人作成する
-User.create!(name:  "Example User",
-             email: "example@railstutorial.org",
-             password:              "foobar",
-             password_confirmation: "foobar",
-             admin: true ,
-             activated: true,
-             activated_at: Time.zone.now)
+User.find_or_create_by!(email: "example@railstutorial.org") do |user|
+  user.name = "Example User"
+  user.user_name = "example"
+  user.password = "foobar"
+  user.password_confirmation = "foobar"
+  user.admin = true
+  user.activated = true
+  user.activated_at = Time.zone.now
+end
 
 # 追加のユーザーをまとめて生成する
 99.times do |n|
   name  = Faker::Name.name
   email = "example-#{n+1}@railstutorial.org"
   password = "password"
-  User.create!(name:  name,
-               email: email,
-               password:              password,
-               password_confirmation: password,
-               activated: true,
-               activated_at: Time.zone.now)
+  user_name = "user_#{n+1}"  # 一意なユーザー名を作成
+
+  User.find_or_create_by!(email: email) do |user|
+    user.name = name
+    user.user_name = user_name  # 一意なuser_nameを設定
+    user.password = password
+    user.password_confirmation = password
+    user.activated = true
+    user.activated_at = Time.zone.now
+  end
 end
 
 # ユーザーの一部を対象にマイクロポストを生成する

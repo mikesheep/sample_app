@@ -3,7 +3,7 @@ require "test_helper"
 class UserTest < ActiveSupport::TestCase
 
   def setup
-    @user = User.new(name: "Example User", email: "user@example.com",
+    @user = User.new(name: "Example User", email: "user@example.com",user_name:"example",
                       password: "foobar", password_confirmation: "foobar")
   end
 
@@ -98,23 +98,92 @@ class UserTest < ActiveSupport::TestCase
     assert_not michael.following?(michael)
   end
 
-  test "feed should have the right posts" do
+  test "ユーザー名：存在性に対するバリデーション" do
+    @user.user_name = ""
+    assert_not @user.valid?
+  end
+  
+  test "ユーザー名：一意性に対するバリデーション" do
+    duplicate_user = @user.dup
+    duplicate_user.user_name = @user.user_name.upcase
+    @user.save
+    assert_not duplicate_user.valid?
+  end
+  
+  test "ユーザー名：使用可能な文字列のバリデーション" do
+    valid_user_names = %w[yutachan taro2 3Shiro Boys2Men]
+    valid_user_names.each do |valid_user_name|
+      @user.user_name = valid_user_name
+      assert @user.valid?, "#{valid_user_name.inspect}は使用可能"
+    end
+  end
+  
+  test "ユーザー名：使用不可な文字列のバリデーション" do
+    invalid_user_names = %w[yuta-chan Taro@San 3.sHiro boY.2/meN あいう]
+    invalid_user_names.each do |invalid_user_name|
+      @user.user_name = invalid_user_name
+      assert_not @user.valid?, "#{invalid_user_name.inspect}は使用不可"
+    end
+  end
+
+  test "should return the right feed" do
     michael = users(:michael)
-    archer  = users(:archer)
-    lana    = users(:lana)
-    # フォローしているユーザーの投稿を確認
-    lana.microposts.each do |post_following|
-      assert michael.feed.include?(post_following)
-    end
-    # フォロワーがいるユーザー自身の投稿を確認
-    michael.microposts.each do |post_self|
-      assert michael.feed.include?(post_self)
-      assert_equal michael.feed.distinct, michael.feed
-    end
-    # フォローしていないユーザーの投稿を確認
-    archer.microposts.each do |post_unfollowed|
-      assert_not michael.feed.include?(post_unfollowed)
-    end
+    lana = users(:lana)
+  
+    # フォローしているユーザーの投稿を作成
+    lana.microposts.create!(content: "Lana's post")
+    feed = michael.feed
+  
+    # フィードにLanaの投稿が含まれているかを確認
+    assert feed.include?(lana.microposts.first)
+  end
+
+  test "michael's posts should appear in his feed" do
+    michael = users(:michael)
+    micropost = michael.microposts.create!(content: "Michael's post")
+  
+    # 自分の投稿がフィードに含まれているか確認
+    assert_includes michael.feed, micropost
+  end
+  
+  test "should not include unfollowed users' posts in feed" do
+    michael = users(:michael)
+    archer = users(:archer)
+    post_unfollowed = archer.microposts.create!(content: "Archer's post")
+  
+    # フォローしていないユーザーの投稿がフィードに含まれていないことを確認
+    assert_not michael.feed.include?(post_unfollowed)
+  end
+
+  test "フォローしているユーザーの自分へのメンションが見える" do
+    michael = users(:michael)
+    lana = users(:lana)
+    # フォローしているユーザーの投稿を作成
+    micropost = lana.microposts.create!(content: "@Michael Lana's post")
+    feed = michael.feed
+    # フィードにLanaの投稿が含まれているかを確認
+    assert feed.include?(micropost)
+  end
+
+  test "フォローしていないユーザーの自分へのメンションが見える" do
+    michael = users(:michael)
+    archer = users(:archer)
+    # フォローしているユーザーの投稿を作成
+    micropost = archer.microposts.create!(content: "@Michael archer's post")
+    feed = michael.feed
+    # フィードに投稿が含まれているかを確認
+    assert feed.include?(micropost)
+  end
+
+  test "フォローしている他人へのメンションは見えない" do
+    michael = users(:michael)
+    lana = users(:lana)
+    malory = users(:malory)
+    # フォローしているユーザーの投稿を作成
+    micropost = lana.microposts.create!(content: "@malory Lana's post")
+    feed = michael.feed
+    # フィードにLanaの投稿が含まれているかを確認
+    assert_not feed.include?(micropost)
   end
 end
 

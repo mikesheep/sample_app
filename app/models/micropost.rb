@@ -16,17 +16,22 @@ class Micropost < ApplicationRecord
   validates :content, presence: true, length: {maximum: 140}
   validates :in_reply_to, presence: false
   validate :reply_to_user 
+  before_save :set_in_reply_to
 
-  def self.including_replies(user)
-    following_ids = user.following_ids
-    where(user_id: following_ids + [user.id])
-      .or(where(in_reply_to: user.id))
-  end  
+  def Micropost.including_replies(id)
+    where(in_reply_to: [id, 0]).or(Micropost.where(user_id: id)).distinct
+  end
+  
 
   def set_in_reply_to
-    ids = content.scan(/@(\d+)/).flatten.map(&:to_i)
-    self.in_reply_to = ids.first || 0
-  end
+    if match = content.match(/@([a-zA-Z0-9_\-]+)/)
+      user_name = match[1]
+      user = User.find_by(user_name: user_name)
+      self.in_reply_to = user ? user.id : 0
+    else
+      self.in_reply_to = 0
+    end
+  end  
 
   def reply_to_user
     # メンションがない場合
@@ -43,20 +48,19 @@ class Micropost < ApplicationRecord
       return
     end
     # 名前とIDが一致しない場合
-    unless reply_to_user_name_correct?(user)
+    unless reply_to_user_name_correct?
       errors.add(:base, "User ID doesn't match its name.")
     end
   end
   
-  def reply_to_user_name_correct?(user)
-    user_name = user.name.gsub(" ", "-")
-    content[@index+2, user_name.length] == user_name
+  def reply_to_user_name_correct?
+    if match = content.match(/@([a-zA-Z0-9_\-]+)/)
+      user_name = match[1]
+      User.exists?(user_name: user_name)
+    else
+      false
+    end
   end
 
-  # def picture_size
-  #   if picture.attached? && picture.byte_size > 5.megabytes
-  #     errors.add(:picture, "is too big. Maximum allowed size is 5MB.")
-  #   end
-  # end
 end
 

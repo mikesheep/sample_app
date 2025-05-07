@@ -16,8 +16,14 @@ class User < ApplicationRecord
   validates :email, presence: true, length: { maximum: 255 },
                     format: { with: VALID_EMAIL_REGEX },
                     uniqueness: true
+  VALID_USER_NAME_REGEX = /\A(\w+)\z/i #名前を英数字のみに指定
+  validates :user_name, presence: true,#↑のメールとほぼ同じ
+                    format: { with: VALID_USER_NAME_REGEX },
+                    uniqueness: { case_sensitive: false }
   has_secure_password
   validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
+  
+  
   
  # 渡された文字列のハッシュ値を返す
   def User.digest(string)
@@ -84,8 +90,9 @@ class User < ApplicationRecord
 
   # ユーザーのステータスフィードを返す
   def feed
-    part_of_feed = "relationships.follower_id = :id or microposts.user_id = :id"
-    Micropost .left_outer_joins(user: :followers)
+    part_of_feed = "relationships.follower_id = :id or microposts.user_id = :id OR microposts.in_reply_to = :id"
+    Micropost.including_replies(id)
+             .left_outer_joins(user: :followers)
              .where(part_of_feed, { id: id }).distinct
              .includes(:user, image_attachment: :blob)
   end

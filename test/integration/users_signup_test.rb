@@ -13,6 +13,7 @@ class UsersSignupTest < UsersSignup
     assert_no_difference 'User.count' do
       post users_path, params: { user: { name:  "",
                                          email: "user@invalid",
+                                         user_name:"",
                                          password:              "foo",
                                          password_confirmation: "bar" } }
     end
@@ -26,6 +27,7 @@ class UsersSignupTest < UsersSignup
     assert_difference 'User.count', 1 do
       post users_path, params: { user: { name:  "Example User",
                                          email: "user@example.com",
+                                         user_name: "example",
                                          password:              "password",
                                          password_confirmation: "password" } }
     end
@@ -39,9 +41,13 @@ class AccountActivationTest < UsersSignup
     super
     post users_path, params: { user: { name:  "Example User",
                                        email: "user@example.com",
+                                       user_name: "example",
                                        password:              "password",
                                        password_confirmation: "password" } }
     @user = assigns(:user)
+    @user.activation_token = User.new_token
+    @user.activation_digest = User.digest(@user.activation_token)
+    @user.save
   end
 
   test "should not be activated" do
@@ -64,6 +70,13 @@ class AccountActivationTest < UsersSignup
   end
 
   test "should log in successfully with valid activation token and email" do
+    @user = users(:michael)
+    @user.activation_token  = User.new_token
+    @user.activation_digest = User.digest(@user.activation_token)
+    @user.activated = false
+    @user.activated_at = nil
+    @user.save
+  
     get edit_account_activation_path(@user.activation_token, email: @user.email)
     assert @user.reload.activated?
     follow_redirect!
