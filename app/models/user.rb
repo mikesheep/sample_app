@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  # Include default devise modules. Others available are:
+  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   has_many :microposts ,dependent: :destroy #ユーザーの破棄と共にマイクロポストも破棄する
   has_many :active_relationships, class_name:  "Relationship",
                                   foreign_key: "follower_id",
@@ -110,6 +112,15 @@ class User < ApplicationRecord
   # 現在のユーザーが他のユーザーをフォローしていればtrueを返す
   def following?(other_user)
     following.include?(other_user)
+  end
+
+  # 名前に基づく部分一致検索
+  def self.search(keyword)
+    if keyword.present?
+      where("name LIKE ?", "%#{sanitize_sql_like(keyword)}%")
+    else
+      all
+    end
   end
 
   private

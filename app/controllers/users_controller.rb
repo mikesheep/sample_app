@@ -5,7 +5,8 @@ class UsersController < ApplicationController
   before_action :admin_user,     only: :destroy #ログインしていても特定の個人しか入れたくない＆外にも見せたくない
 
   def index
-    @users = User.where(activated: true).paginate(page: params[:page])
+    @keyword = params[:keyword]
+    @users = User.where(activated: true).search(@keyword).paginate(page: params[:page])
   end
 
   def show

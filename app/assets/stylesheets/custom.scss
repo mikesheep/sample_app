@@ -61,20 +61,75 @@ p {
 
 
 /* header */
-
+/* ロゴスタイル */
 #logo {
-  float: left;
-  margin-right: 10px;
   font-size: 1.7em;
   color: white;
   text-transform: uppercase;
   letter-spacing: -1px;
-  padding-top: 9px;
   font-weight: bold;
-  &:hover {
-    color: white;
-    text-decoration: none;
-  }
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  line-height: 40px;
+}
+
+/* 親コンテナで中央揃えを徹底 */
+.navbar .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+}
+
+/* ヘッダー部分（ロゴとハンバーガー含む） */
+.navbar-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 40px;
+}
+
+/* 検索フォーム全体 */
+.search-form {
+  display: flex;
+  flex-grow: 1;
+  margin: 0 16px;
+  max-width: 600px;
+  align-items: center; /* 中央揃え */
+  height: 40px;  /* 明示的な高さを指定（親より小さめ） */
+}
+
+/* 入力欄とボタンの並び */
+.search-form .form-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.search-form .form-control ,
+.search-form .btn{
+  height: 100%;  /* 親と同じ高さ */
+  flex-grow: 1; /* 検索欄が空いているスペースを占める */
+  border: 1px solid #ccc;
+}
+
+/* 入力欄 */
+.search-form .form-control {
+  // height: 40px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  min-width: 350px;
+}
+
+/* ボタン */
+.search-form .btn {
+  // height: 40px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
 }
 
 /* footer */
@@ -311,3 +366,4 @@ span.image {
     border: 0;
   }
 }
+
